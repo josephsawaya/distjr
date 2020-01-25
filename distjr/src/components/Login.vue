@@ -33,7 +33,7 @@ export default {
   methods:{
     loginFunction(){
       alert("function running");
-      firebase.auth().createUserWithEmailAndPassword(this.username,this.password)
+      firebase.auth().signInWithEmailAndPassword(this.username,this.password)
       .then(data => {
         alert(data);
         setTimeout(5000);
