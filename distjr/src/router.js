@@ -5,6 +5,7 @@ Vue.use(Router)
 
 const Login = () => import('./components/Login')
 const SignUp = () => import('./components/SignUp')
+const Dashboard = () => import('./components/Dashboard.vue')
 
 export default new Router({
   mode: 'history',
@@ -19,6 +20,11 @@ export default new Router({
       path: '/signup',
       name: 'SignUp',
       component: SignUp
+    },
+    {
+      path: '/dashboard',
+      name: 'Dashboard',
+      component: Dashboard
     }
   ]
 })

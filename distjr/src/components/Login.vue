@@ -5,12 +5,12 @@
 
     <div class="Username">
       <label for="uname"><b>Username</b></label>
-      <input type="text" placeholder="Enter Username" name="uname" required>
+      <input v-model="username" type="text" placeholder="Enter Username" name="uname" required>
     </div>
 
     <div class="password">
       <label for="psw"><b>Password</b></label>
-      <input type="password" placeholder="Enter Password" name="psw" required> 
+      <input v-model="password" type="password" placeholder="Enter Password" name="psw" required> 
     </div>
 
     <div class="Submit">
@@ -31,6 +31,7 @@ import * as firebase from "firebase/app";
 // Add the Firebase services that you want to use
 import "firebase/auth";
 
+
 export default {
   name: "Login",
   data(){
@@ -41,15 +42,13 @@ export default {
   },
   methods:{
     loginFunction(){
-      alert("function running");
-      firebase.auth().createUserWithEmailAndPassword(this.username,this.password)
-      .then(data => {
-        alert(data);
-        setTimeout(5000);
-      })
+      firebase.auth().signInWithEmailAndPassword(this.username,this.password)
+      .then(() => {
+        alert("Logging you in!");
+        this.$router.push('Dashboard')
+        })
       .catch(err => {
         alert(err);
-        setTimeout(5000);
       })
     }
   }
