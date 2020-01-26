@@ -75,9 +75,6 @@ export default {
   }
 };
 
-function writeUserData(uid, Email, nickname) {
-  alert("using: " + uid + " , " + Email + " , " + nickname);
-
 function writeUserData(uid, Email, nickname){
         alert("using: " + uid + " , " + Email + " , " + nickname);
         
