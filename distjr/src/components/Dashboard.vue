@@ -8,32 +8,32 @@
     </div>
 
     <div class="container">
-        
       <div class="distraction" v-for="(distraction,index) in distractions" v-bind:key="index">
         <div class="button-container">
-            <div v-bind:id="index" class="delete" v-on:click="delete_distraction">X </div>
-            <div v-bind:id="index" class="add-note" v-on:click="add">N </div>
+          <div v-bind:id="index" class="delete" v-on:click="deleteAtPath">X</div>
+          <div v-bind:id="index" class="add-note" v-on:click="add">N</div>
         </div>
         <div v-bind:id="index" class="bruh1" v-on:click="plus">{{ distraction.key }}</div>
         <div v-bind:id="index" class="bruh2" v-on:click="minus">{{ distraction.value }}</div>
       </div>
-    </div>
-    <div class="form-popup" id="myForm">
-      <form
-        v-on:submit.prevent="addDistraction(distractionName)"
-        action="/action_page.php"
-        class="form-container"
-      >
-        <input
-          v-model="distractionName"
-          type="text"
-          placeholder="What's your new distraction?"
-          name="distraction"
-          required
-        />
-        <button type="submit" class="btn">Ok</button>
-        <button type="button" class="btn cancel" v-on:click="closeForm()">Cancel</button>
-      </form>
+
+      <div class="form-popup" id="myForm">
+        <form
+          v-on:submit.prevent="addDistraction(distractionName)"
+          action="/action_page.php"
+          class="form-container"
+        >
+          <input
+            v-model="distractionName"
+            type="text"
+            placeholder="What's your new distraction?"
+            name="distraction"
+            required
+          />
+          <button type="submit" class="btn">Ok</button>
+          <button type="button" class="btn cancel" v-on:click="closeForm()">Cancel</button>
+        </form>
+      </div>
     </div>
   </div>
 </template>
@@ -84,20 +84,32 @@ export default {
   },
 
   methods: {
-
-      delete_distraction(e){
+    deleteAtPath(e) {
+      db.collection("users")
+        .doc(firebase.auth().currentUser.uid)
+        .collection(this.distractions[e.target.getAttribute("id")].key)
+        .doc("stats")
+        .delete()
+        .then(function() {
+          // eslint-disable-next-line no-console
+          console.log("Document successfully deleted!");
+        })
+        .catch(function(error) {
+          // eslint-disable-next-line no-console
+          console.error("Error removing document: ", error);
+        })
+        .then(() => {
           db.collection("users")
             .doc(firebase.auth().currentUser.uid)
-            .collection(e.target.innerText).doc("stats").delete().then(()=>{
-                this.distractions.pop(e.target.getAttribute("id"));
-            }).catch(function(error) {
-                // eslint-disable-next-line no-console
-                console.error("Error removing document: ", error);
+            .update({
+              distractions: firebase.firestore.FieldValue.arrayRemove(
+                this.distractions[e.target.getAttribute("id")].key
+              )
             }).then(()=>{
-                this.$forceUpdate();
-            });
-      },
-
+                this.distractions.pop(e.target.getAttribute("id"));
+            })
+        });
+    },
     plus(e) {
       // eslint-disable-next-line no-console
       console.log(e.target.innerText);
@@ -109,15 +121,16 @@ export default {
         .get()
         .then(doc => {
           temp = doc.data().number;
-            db.collection("users")
+          db.collection("users")
             .doc(firebase.auth().currentUser.uid)
             .collection(e.target.innerText)
             .doc("stats")
             .update({
               number: temp + 1
-            }).then(()=>{
-                this.distractions[e.target.getAttribute("id")].value++;
             })
+            .then(() => {
+              this.distractions[e.target.getAttribute("id")].value++;
+            });
         });
     },
     minus(e) {
@@ -134,14 +147,14 @@ export default {
           if (temp === 0) {
             return;
           }
-            db.collection("users")
+          db.collection("users")
             .doc(firebase.auth().currentUser.uid)
             .collection(this.distractions[e.target.getAttribute("id")].key)
             .doc("stats")
             .update({
               number: temp - 1
-            })
-            this.distractions[e.target.getAttribute("id")].value--; 
+            });
+          this.distractions[e.target.getAttribute("id")].value--;
         });
     },
 
@@ -152,18 +165,19 @@ export default {
           distractions: firebase.firestore.FieldValue.arrayUnion(
             distractionName
           )
-        }).then(()=>{
-            db.collection("users")
+        })
+        .then(() => {
+          db.collection("users")
             .doc(firebase.auth().currentUser.uid)
             .collection(distractionName)
             .doc("stats")
             .set({
-            number: 0
-            })
-        })
-        this.distractions.push(new Distraction(distractionName,0));
-        this.$forceUpdate();
-        this.closeForm();
+              number: 0
+            });
+        });
+      this.distractions.push(new Distraction(distractionName, 0));
+      this.$forceUpdate();
+      this.closeForm();
     },
 
     openForm() {
@@ -174,12 +188,15 @@ export default {
       document.getElementById("myForm").style.display = "none";
     },
 
-
-    signout(){
-        firebase.auth().signOut().then(()=>{
-            this.$router.push('/')
-        })
-    }
+    signout() {
+      firebase
+        .auth()
+        .signOut()
+        .then(() => {
+          this.$router.push("/");
+        });
+    },
+    add() {}
   }
 };
 </script>
