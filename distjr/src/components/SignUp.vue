@@ -74,7 +74,7 @@ export default {
         db.collection("users").doc(uid).set({
             username: Email,
             name: nickname,
-            distractions: ''
+            distractions: [] 
         });
     }
 
