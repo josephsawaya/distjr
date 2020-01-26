@@ -30,8 +30,8 @@ import * as firebase from "firebase/app";
 // Add the Firebase services that you want to use
 import "firebase/auth";
 import "firebase/firestore";
-//var db = firebase.firestore();
-import db from "../main"
+var db = firebase.firestore();
+// import db from "../main.js" 
 export default {
   name: "Login",
   data(){
@@ -68,15 +68,15 @@ export default {
 };
 
 
- function writeUserData(uid, Email, nickname){
+function writeUserData(uid, Email, nickname){
         alert("using: " + uid + " , " + Email + " , " + nickname);
         
         db.collection("users").doc(uid).set({
             username: Email,
             name: nickname,
-            distractions: [] 
+            distractions: []  
         });
-    }
+}
 
 
 </script>
