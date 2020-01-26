@@ -30,9 +30,29 @@ const firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
+
 export var db = firebase.firestore();
 
-new Vue({
-  router,
-  render: h => h(App)
-}).$mount('#app')
+let app;
+firebase.auth().onAuthStateChanged(async user => {
+if (!app) {
+    //wait to get user
+    // eslint-disable-next-line no-redeclare
+    var user = await firebase.auth().currentUser;
+
+    //start app
+    app = new Vue({
+      router,
+      created() {
+        //redirect if user not logged in
+        if (!user) {
+          this.$router.push("/");
+        }
+        else{
+          this.$router.push("/dashboard")
+        }
+      },
+      render: h => h(App)
+    }).$mount("#app");
+  }
+});

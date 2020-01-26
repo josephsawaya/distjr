@@ -121,6 +121,9 @@ export default {
         .get()
         .then(doc => {
           temp = doc.data().number;
+          if(temp === '0'){
+              return;
+          }
           db.collection("users")
             .doc(firebase.auth().currentUser.uid)
             .collection(this.distractions[this.values.indexOf(parseInt(e.target.innerText))])
