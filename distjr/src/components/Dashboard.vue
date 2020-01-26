@@ -1,5 +1,8 @@
 <template>
   <div>
+    <h1>Hello, {{ nickname }}</h1>
+    <p>Are you ready to get to work?</p>
+    <hr>
     <div>
       <button class="open-button" v-on:click="openForm()">Add New Distraction</button>
     </div>
@@ -55,7 +58,8 @@ export default {
     return {
       distractionName: "",
       distractions: [],
-      list: []
+      list: [],
+      nickname: ''
     };
   },
 
@@ -81,6 +85,9 @@ export default {
             });
         });
       });
+      db.collection("users").doc(firebase.auth().currentUser.uid).get().then(doc=>{
+          this.nickname = doc.data().name
+      })
   },
 
   methods: {
@@ -322,12 +329,29 @@ export default {
     position: relative;
     left: 1vw;
     top: 1vh;
+    border-radius:3px;
+    transition:1s;
 }
 
 .add-note{
     position: relative;
     left:23vw;
-    bottom:2vh
+    bottom:2vh;
+}
+
+.add-note:hover{
+    background-color: red;
+    cursor: pointer;
+}
+
+.delete:hover{
+    background-color: red;
+    cursor: pointer;
+}
+
+delete::after {
+  transition: all 1s ease;
+  display: inline-block;
 }
 
 .button-container{

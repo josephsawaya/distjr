@@ -1,7 +1,9 @@
 <template>
   <div id="main">
     <form v-on:submit.prevent="loginFunction()">
-
+<h1>Log in</h1>
+    <p>Please log in.</p>
+    <hr>
     <div id= "container">
     <div class="email">
       <label for="email">Username:</label>
