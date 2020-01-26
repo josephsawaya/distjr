@@ -317,4 +317,20 @@ export default {
 .bruh2:hover {
   background-color: salmon;
 }
+
+.delete{
+    position: relative;
+    left: 1vw;
+    top: 1vh;
+}
+
+.add-note{
+    position: relative;
+    left:23vw;
+    bottom:2vh
+}
+
+.button-container{
+    width:0;
+}
 </style>
