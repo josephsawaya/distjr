@@ -30,8 +30,8 @@ import * as firebase from "firebase/app";
 // Add the Firebase services that you want to use
 import "firebase/auth";
 import "firebase/firestore";
-var db = firebase.firestore();
-
+//var db = firebase.firestore();
+import db from "../main"
 export default {
   name: "Login",
   data(){
