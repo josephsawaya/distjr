@@ -5,8 +5,7 @@
         </div>
 
         <div>
-            <div v-for="item in range" v-bind:key="item.id">
-            </div>
+
             <div>
                 <div v-if="empty"> Add new distractions</div>
             </div>
@@ -34,14 +33,11 @@ var db = firebase.firestore();
 // import db from "../main.js";
 
 
-
-
 export default {
     name: "Dashboard",
     data() {
         return {
-            distractionName: '',
-            distractions: new Map(),
+            distractions: [],
             empty: false
         }
     },
@@ -49,6 +45,9 @@ export default {
         db.collection('users').doc(firebase.auth().currentUser.uid).get().then((doc) => {
             if(doc.data() == null){
                 this.empty = true;
+            }
+            else{
+                alert(doc.data())
             }
         })
     },
