@@ -15,7 +15,6 @@
 
         <div class="form-popup" id="myForm">
             <form v-on:submit.prevent='addDistraction(distractionName)' action="/action_page.php" class="form-container">
-                <h1>Enter New Distraction</h1>
                 <input v-model='distractionName' type="text" placeholder="What's your new distraction?" name="distraction" required>
                 <button type="submit" class="btn">Ok</button>
                 <button type="button" class="btn cancel" v-on:click='closeForm()'>Cancel</button>
@@ -122,7 +121,7 @@ export default {
         .get()
         .then(doc => {
           temp = doc.data().number;
-          if(temp === '0'){
+          if(temp == 0){
               return;
           }
           db.collection("users")
@@ -216,7 +215,7 @@ export default {
   position: fixed;
   bottom: 23px;
   right: 28px;
-  width: 280px;
+  width: 240px;
 }
 
 /* The popup form - hidden by default */
@@ -253,24 +252,25 @@ export default {
 
 /* Set a style for the submit/login button */
 .form-container .btn {
-  background-color: #4CAF50;
+  background-color: rgb(100, 100, 100);
   color: white;
-  padding: 16px 20px;
+  padding: 30px 50px 30px 50px;
   border: none;
   cursor: pointer;
-  width: 100%;
-  margin-bottom:10px;
-  opacity: 0.8;
+  width: 50%;
+  margin-bottom:20px;
+  opacity: 0.5;
 }
 
 /* Add a red background color to the cancel button */
 .form-container .cancel {
-  background-color: red;
+  background-color: rgb(100, 100, 100);
+  opacity: 0.3;
 }
 
 /* Add some hover effects to buttons */
 .form-container .btn:hover, .open-button:hover {
-  opacity: 1;
+  opacity: 0.8;
 }
 
     
