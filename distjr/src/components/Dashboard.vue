@@ -1,5 +1,8 @@
 <template>
   <div>
+    <h1>Hello, {{ nickname }}</h1>
+    <p>Are you ready to get to work?</p>
+    <hr>
     <div>
       <button class="open-button" v-on:click="openForm()">Add New Distraction</button>
     </div>
@@ -8,7 +11,6 @@
     </div>
 
     <div class="container">
-        
       <div class="distraction" v-for="(distraction,index) in distractions" v-bind:key="index">
         <div class="button-container">
             <div v-bind:id="index" class="delete" v-on:click="delete_distraction">X </div>
@@ -79,7 +81,8 @@ export default {
         note: "",
       distractionName: "",
       distractions: [],
-      list: []
+      list: [],
+      nickname: ''
     };
   },
 
@@ -105,23 +108,38 @@ export default {
             });
         });
       });
+      db.collection("users").doc(firebase.auth().currentUser.uid).get().then(doc=>{
+          this.nickname = doc.data().name
+      })
   },
 
   methods: {
-
-      delete_distraction(e){
+    deleteAtPath(e) {
+      db.collection("users")
+        .doc(firebase.auth().currentUser.uid)
+        .collection(this.distractions[e.target.getAttribute("id")].key)
+        .doc("stats")
+        .delete()
+        .then(function() {
+          // eslint-disable-next-line no-console
+          console.log("Document successfully deleted!");
+        })
+        .catch(function(error) {
+          // eslint-disable-next-line no-console
+          console.error("Error removing document: ", error);
+        })
+        .then(() => {
           db.collection("users")
             .doc(firebase.auth().currentUser.uid)
-            .collection(e.target.innerText).doc("stats").delete().then(()=>{
-                this.distractions.pop(e.target.getAttribute("id"));
-            }).catch(function(error) {
-                // eslint-disable-next-line no-console
-                console.error("Error removing document: ", error);
+            .update({
+              distractions: firebase.firestore.FieldValue.arrayRemove(
+                this.distractions[e.target.getAttribute("id")].key
+              )
             }).then(()=>{
-                this.$forceUpdate();
-            });
-      },
-
+                this.distractions.splice(e.target.getAttribute("id"),1);
+            })
+        });
+    },
     plus(e) {
       // eslint-disable-next-line no-console
       console.log(e.target.innerText);
@@ -133,15 +151,16 @@ export default {
         .get()
         .then(doc => {
           temp = doc.data().number;
-            db.collection("users")
+          db.collection("users")
             .doc(firebase.auth().currentUser.uid)
             .collection(e.target.innerText)
             .doc("stats")
             .update({
               number: temp + 1
-            }).then(()=>{
-                this.distractions[e.target.getAttribute("id")].value++;
             })
+            .then(() => {
+              this.distractions[e.target.getAttribute("id")].value++;
+            });
         });
     },
     minus(e) {
@@ -158,14 +177,14 @@ export default {
           if (temp === 0) {
             return;
           }
-            db.collection("users")
+          db.collection("users")
             .doc(firebase.auth().currentUser.uid)
             .collection(this.distractions[e.target.getAttribute("id")].key)
             .doc("stats")
             .update({
               number: temp - 1
-            })
-            this.distractions[e.target.getAttribute("id")].value--; 
+            });
+          this.distractions[e.target.getAttribute("id")].value--;
         });
     },
 
@@ -176,8 +195,9 @@ export default {
           distractions: firebase.firestore.FieldValue.arrayUnion(
             distractionName
           )
-        }).then(()=>{
-            db.collection("users")
+        })
+        .then(() => {
+          db.collection("users")
             .doc(firebase.auth().currentUser.uid)
             .collection(distractionName)
             .doc("stats")
@@ -358,6 +378,52 @@ export default {
 
 .bruh2:hover {
   background-color: salmon;
+}
+
+.delete{
+    position: relative;
+    left: 1vw;
+    top: 1vh;
+    border-radius:3px;
+    transition:1s;
+}
+
+.add-note{
+    position: relative;
+    left:23vw;
+    bottom:2vh;
+}
+
+.add-note:hover{
+    background-color: red;
+    cursor: pointer;
+}
+
+.delete:hover{
+    background-color: red;
+    cursor: pointer;
+}
+
+delete::after {
+  transition: all 1s ease;
+  display: inline-block;
+}
+
+.button-container{
+    width:0;
+}
+.signout {
+  background-color: #555;
+  color: white;
+  padding: 16px 20px;
+  border: none;
+  cursor: pointer;
+  opacity: 0.8;
+  position: fixed;
+  bottom: 23px;
+  left: 28px;
+  width: 240px;
+  border-radius: 10px;
 }
 </style>
 // eslint-disable-next-line no-console

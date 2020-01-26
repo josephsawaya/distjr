@@ -31,7 +31,6 @@
       </div>
     </div>
     </form>
-    <router-link :to="{ name: 'Login' }">Already have a login?</router-link>
   </div>
 </template>
 
