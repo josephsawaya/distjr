@@ -30,6 +30,14 @@ const firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
+class Distraction{
+  constructor(key,value){
+    this.key = key;
+    this.value = value;
+  }
+}
+
+export default Distraction;
 
 export var db = firebase.firestore();
 
@@ -56,3 +64,4 @@ if (!app) {
     }).$mount("#app");
   }
 });
+
