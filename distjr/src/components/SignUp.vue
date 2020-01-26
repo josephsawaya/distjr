@@ -19,7 +19,7 @@
       <input v-model="confirmPassword" type="password">
       <input type="submit" value="Submit">
     </form>
-    <router-link :to="{ name: 'SignUp' }">Click here to sign up!</router-link>
+    <router-link :to="{ name: 'Login' }">Already have a login?</router-link>
   </div>
 </template>
 
@@ -30,7 +30,7 @@ import * as firebase from "firebase/app";
 // Add the Firebase services that you want to use
 import "firebase/auth";
 import "firebase/firestore";
-
+var db = firebase.firestore();
 
 export default {
   name: "Login",
@@ -49,10 +49,12 @@ export default {
         } 
 
         else {
+            
             alert("function running");
             firebase.auth().createUserWithEmailAndPassword(this.username,this.password)
             .then(data => {
                 alert(data.user.uid + "Successful!");
+                
                 writeUserData(data.user.uid, this.username, this.nickname);
             })
             .catch(err => {
@@ -68,8 +70,8 @@ export default {
 
  function writeUserData(uid, Email, nickname){
         alert("using: " + uid + " , " + Email + " , " + nickname);
-        //firebase.database().ref('/users/' + uid)
-        firebase.database().ref('/users/' + uid).set({
+        
+        db.collection("users").doc(uid).set({
             username: Email,
             name: nickname,
             distractions: ''
