@@ -106,7 +106,7 @@ export default {
                 this.distractions[e.target.getAttribute("id")].key
               )
             }).then(()=>{
-                this.distractions.pop(e.target.getAttribute("id"));
+                this.distractions.splice(e.target.getAttribute("id"),1);
             })
         });
     },
