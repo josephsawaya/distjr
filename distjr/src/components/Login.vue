@@ -43,7 +43,6 @@ export default {
     loginFunction(){
       firebase.auth().signInWithEmailAndPassword(this.username,this.password)
       .then(() => {
-        alert("Logging you in!");
         this.$router.push('Dashboard')
         })
       .catch(err => {

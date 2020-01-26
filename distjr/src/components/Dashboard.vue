@@ -3,9 +3,17 @@
     <div>
       <button class="open-button" v-on:click="openForm()">Add New Distraction</button>
     </div>
+    <div>
+      <button class="signout" v-on:click="signout()">Signout</button>
+    </div>
 
     <div class="container">
+        
       <div class="distraction" v-for="(distraction,index) in distractions" v-bind:key="index">
+        <div class="button-container">
+            <div v-bind:id="index" class="delete" v-on:click="delete_distraction">X </div>
+            <div v-bind:id="index" class="add-note" v-on:click="add">N </div>
+        </div>
         <div v-bind:id="index" class="bruh1" v-on:click="plus">{{ distraction.key }}</div>
         <div v-bind:id="index" class="bruh2" v-on:click="minus">{{ distraction.value }}</div>
       </div>
@@ -76,6 +84,20 @@ export default {
   },
 
   methods: {
+
+      delete_distraction(e){
+          db.collection("users")
+            .doc(firebase.auth().currentUser.uid)
+            .collection(e.target.innerText).doc("stats").delete().then(()=>{
+                this.distractions.pop(e.target.getAttribute("id"));
+            }).catch(function(error) {
+                // eslint-disable-next-line no-console
+                console.error("Error removing document: ", error);
+            }).then(()=>{
+                this.$forceUpdate();
+            });
+      },
+
     plus(e) {
       // eslint-disable-next-line no-console
       console.log(e.target.innerText);
@@ -87,9 +109,6 @@ export default {
         .get()
         .then(doc => {
           temp = doc.data().number;
-          if (temp === 0) {
-            return;
-          }
             db.collection("users")
             .doc(firebase.auth().currentUser.uid)
             .collection(e.target.innerText)
@@ -133,36 +152,18 @@ export default {
           distractions: firebase.firestore.FieldValue.arrayUnion(
             distractionName
           )
-        });
-      db.collection("users")
-        .doc(firebase.auth().currentUser.uid)
-        .collection(distractionName)
-        .doc("stats")
-        .set({
-          number: 0
-        });
-      db.collection("users")
-        .doc(firebase.auth().currentUser.uid)
-        .get()
-        .then(doc => {
-          this.distractions = doc.data().distractions;
-        })
-        .then(() => {
-          this.values = [];
-          this.distractions.forEach(element => {
+        }).then(()=>{
             db.collection("users")
-              .doc(firebase.auth().currentUser.uid)
-              .collection(element)
-              .doc("stats")
-              .get()
-              .then(doc => {
-                // eslint-disable-next-line no-console
-                this.values.push(doc.data().number);
-              });
-          });
-          this.$forceUpdate();
-        });
-      this.closeForm();
+            .doc(firebase.auth().currentUser.uid)
+            .collection(distractionName)
+            .doc("stats")
+            .set({
+            number: 0
+            })
+        })
+        this.distractions.push(new Distraction(distractionName,0));
+        this.$forceUpdate();
+        this.closeForm();
     },
 
     openForm() {
@@ -171,6 +172,13 @@ export default {
 
     closeForm() {
       document.getElementById("myForm").style.display = "none";
+    },
+
+
+    signout(){
+        firebase.auth().signOut().then(()=>{
+            this.$router.push('/')
+        })
     }
   }
 };
@@ -260,7 +268,7 @@ export default {
 }
 
 .distraction {
-  margin: 10vh 10vw;
+  margin: 3vh 3vw;
   height: 15vh;
   border-radius: 10px;
   display: flex;

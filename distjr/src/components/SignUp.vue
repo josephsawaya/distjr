@@ -62,12 +62,10 @@ export default {
 
         else {
             
-            alert("function running");
             firebase.auth().createUserWithEmailAndPassword(this.username,this.password)
-            .then(data => {
-                alert(data.user.uid + "Successful!");
-                
+            .then(data => {     
                 writeUserData(data.user.uid, this.username, this.nickname);
+                this.$router.push('/dashboard');
             })
             .catch(err => {
                 alert(err);
