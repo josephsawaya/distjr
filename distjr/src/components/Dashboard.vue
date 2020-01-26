@@ -1,10 +1,23 @@
 <template>
   <div>
-    <h1>Hello, {{ nickname }}</h1>
-    <p>Are you ready to get to work?</p>
-    <hr>
+    <div v-if="modalNote != ''" class="modal-mask">
+        <div class="modal-wrapper">
+            <div class ="modal-container">
+                {{modalNote}}
+                <button v-on:click="resetModal">Finish</button>
+            </div>
+        </div>
+    </div>
+    <div class="title">
+        <h1>Hello, {{ nickname }}</h1>
+        <p>Are you ready to get to work?</p>
+        <hr>
+    </div>
     <div>
       <button class="open-button" v-on:click="openForm()">Add New Distraction</button>
+    </div>
+    <div>
+      <button class="open-note" v-on:click="openNote()">Add New Note</button>
     </div>
     <div>
       <button class="signout" v-on:click="signout()">Signout</button>
@@ -13,8 +26,8 @@
     <div class="container">
       <div class="distraction" v-for="(distraction,index) in distractions" v-bind:key="index">
         <div class="button-container">
-            <div v-bind:id="index" class="delete" v-on:click="delete_distraction">X </div>
-            <div class="add-note" v-on:click="add">N </div>
+            <div v-bind:id="index" class="delete" v-on:click="deleteAtPath">X </div>
+            <div v-bind:id="index" class="add-note" v-on:click="showNote">N </div>
         </div>
         <div v-bind:id="index" class="bruh1" v-on:click="plus">{{ distraction.key }}</div>
         <div v-bind:id="index" class="bruh2" v-on:click="minus">{{ distraction.value }}</div>
@@ -22,10 +35,9 @@
       
     </div>
 
-    <div v-bind:id="index" class="distractionNotes" v-for="(distraction,index) in distractions" v-bind:key="index" >
-        <div  class="noteForm">
+        <div id="myNote" class="noteForm">
         <form
-            v-on:submit.prevent="addNote(note)"
+            v-on:submit.prevent="addNote"
             action="/action_page.php"
             class="form-container">
             <input
@@ -35,11 +47,17 @@
             name="distraction"
             required
             />
+            <input
+            v-model="noteTarget"
+            type="text"
+            placeholder="What distraction is it for?"
+            name="noteTarget"
+            required
+            />
             <button type="submit" class="btn">Ok</button>
             <button type="button" class="btn cancel" v-on:click="closeFormNote()">Cancel</button>
         </form>
         </div>
-    </div>
 
     <div class="form-popup" id="myForm">
       <form
@@ -82,7 +100,9 @@ export default {
       distractionName: "",
       distractions: [],
       list: [],
-      nickname: ''
+      nickname: '',
+      modalNote:'',
+      noteTarget:''
     };
   },
 
@@ -114,6 +134,14 @@ export default {
   },
 
   methods: {
+    openNote() {
+      document.getElementById("myNote").style.display = "block";
+    },
+    closeFormNote() {
+      document.getElementById("myNote").style.display = "none";
+    },
+
+
     deleteAtPath(e) {
       db.collection("users")
         .doc(firebase.auth().currentUser.uid)
@@ -227,25 +255,37 @@ export default {
     },
 
 
-    add(e){
+    showNote(e){
         this.targetIndex = this.distractions[e.target.getAttribute("id")].value;
-        alert(e.target.getAttribute("id"));
-        alert(this.distractions[e.target.getAttribute("id")].value);
+        db.collection("users").doc(firebase.auth().currentUser.uid).collection(this.distractions[e.target.getAttribute("id")].key).doc("stats").get().then(doc=>{
+            this.modalNote = doc.data().note;
+        })
     },
 
 
-    addNote(noteToAdd){
+    addNote(){
         db.collection("users")
         .doc(firebase.auth().currentUser.uid)
-        .collection(this.distractions[this.targetIndex].key)
+        .collection(this.noteTarget)
         .doc("stats")
         .update({
-            note: noteToAdd
+            note: this.note
+        }).then(()=>{
+            this.closeFormNote()
+        }).catch(error=>{
+            alert("Error! " + error);
         })
+    },
+    resetModal(){
+        this.modalNote ='';
     }
-  }
+  },
+
+
 };
 </script>
+
+
 <style>
 * {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
@@ -266,6 +306,20 @@ export default {
   border-radius: 10px;
 }
 
+.open-note {
+  background-color: #555;
+  color: white;
+  padding: 16px 20px;
+  border: none;
+  cursor: pointer;
+  opacity: 0.8;
+  position: fixed;
+  bottom: 23px;
+  right: 300px;
+  width: 240px;
+  border-radius: 10px;
+}
+
 /* The popup form - hidden by default */
 .form-popup {
   display: none;
@@ -277,21 +331,14 @@ export default {
   z-index: 9;
 }
 
-
-.distractionNotes {
-  display: flex;
-  flex-wrap: nowrap;
-  flex-direction: row;
-}
-
 .noteForm {
-    margin: 3vh 3vw;
-  height: 15vh;
+  display: none;
+  position: fixed;
   border-radius: 10px;
-  display: flex;
-  text-align: center;
-  flex: 0 0 25vw;
-  border: lightgray thin solid;
+  bottom: 0;
+  right: 300px;
+  border: 3px solid #f1f1f1;
+  z-index: 9;
 }
 /* Add styles to the form container */
 .form-container {
@@ -340,10 +387,20 @@ export default {
   opacity: 0.8;
 }
 
+.form-container .btn:hover,
+.open-button:hover {
+  opacity: 0.8;
+}
+
+
 .container {
-  display: flex;
+  display: inline-flex;
   flex-wrap: nowrap;
   flex-direction: row;
+  margin-top: 200px;
+  scroll-padding-right:200px;
+  overflow: auto;
+  width: 99vw;
 }
 
 .distraction {
@@ -424,6 +481,40 @@ delete::after {
   left: 28px;
   width: 240px;
   border-radius: 10px;
+}
+
+.modal-mask{
+    position:fixed;
+    z-index: 9998;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, .5);
+    display: table;
+    transition: opacity .3s ease;
+}
+
+.modal-container {
+  width: 300px;
+  margin: 0 auto;
+  padding: 20px 30px;
+  background-color: #fff;
+  border-radius: 2px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .33);
+  transition: all .3s ease;
+  font-family: Helvetica, Arial, sans-serif;
+  text-align:center;
+}
+
+.modal-wrapper {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+
+.title{
+    position: fixed;
 }
 </style>
 // eslint-disable-next-line no-console
