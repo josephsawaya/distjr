@@ -333,4 +333,17 @@ export default {
 .button-container{
     width:0;
 }
+.signout {
+  background-color: #555;
+  color: white;
+  padding: 16px 20px;
+  border: none;
+  cursor: pointer;
+  opacity: 0.8;
+  position: fixed;
+  bottom: 23px;
+  left: 28px;
+  width: 240px;
+  border-radius: 10px;
+}
 </style>
