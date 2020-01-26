@@ -12,12 +12,33 @@
       <div class="distraction" v-for="(distraction,index) in distractions" v-bind:key="index">
         <div class="button-container">
             <div v-bind:id="index" class="delete" v-on:click="delete_distraction">X </div>
-            <div v-bind:id="index" class="add-note" v-on:click="add">N </div>
+            <div class="add-note" v-on:click="add">N </div>
         </div>
         <div v-bind:id="index" class="bruh1" v-on:click="plus">{{ distraction.key }}</div>
         <div v-bind:id="index" class="bruh2" v-on:click="minus">{{ distraction.value }}</div>
       </div>
+      
     </div>
+
+    <div v-bind:id="index" class="distractionNotes" v-for="(distraction,index) in distractions" v-bind:key="index" >
+        <div  class="noteForm">
+        <form
+            v-on:submit.prevent="addNote(note)"
+            action="/action_page.php"
+            class="form-container">
+            <input
+            v-model="note"
+            type="text"
+            placeholder="What do you think about this distraction?"
+            name="distraction"
+            required
+            />
+            <button type="submit" class="btn">Ok</button>
+            <button type="button" class="btn cancel" v-on:click="closeFormNote()">Cancel</button>
+        </form>
+        </div>
+    </div>
+
     <div class="form-popup" id="myForm">
       <form
         v-on:submit.prevent="addDistraction(distractionName)"
@@ -53,6 +74,9 @@ export default {
   name: "Dashboard",
   data() {
     return {
+        targetIndex: 0,
+        distractionID: 0,
+        note: "",
       distractionName: "",
       distractions: [],
       list: []
@@ -158,7 +182,8 @@ export default {
             .collection(distractionName)
             .doc("stats")
             .set({
-            number: 0
+            number: 0,
+            note: ""
             })
         })
         this.distractions.push(new Distraction(distractionName,0));
@@ -178,6 +203,24 @@ export default {
     signout(){
         firebase.auth().signOut().then(()=>{
             this.$router.push('/')
+        })
+    },
+
+
+    add(e){
+        this.targetIndex = this.distractions[e.target.getAttribute("id")].value;
+        alert(e.target.getAttribute("id"));
+        alert(this.distractions[e.target.getAttribute("id")].value);
+    },
+
+
+    addNote(noteToAdd){
+        db.collection("users")
+        .doc(firebase.auth().currentUser.uid)
+        .collection(this.distractions[this.targetIndex].key)
+        .doc("stats")
+        .update({
+            note: noteToAdd
         })
     }
   }
@@ -214,6 +257,22 @@ export default {
   z-index: 9;
 }
 
+
+.distractionNotes {
+  display: flex;
+  flex-wrap: nowrap;
+  flex-direction: row;
+}
+
+.noteForm {
+    margin: 3vh 3vw;
+  height: 15vh;
+  border-radius: 10px;
+  display: flex;
+  text-align: center;
+  flex: 0 0 25vw;
+  border: lightgray thin solid;
+}
 /* Add styles to the form container */
 .form-container {
   max-width: 300px;
@@ -301,3 +360,4 @@ export default {
   background-color: salmon;
 }
 </style>
+// eslint-disable-next-line no-console
